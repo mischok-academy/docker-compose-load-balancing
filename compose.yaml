@@ -1,4 +1,10 @@
 services:
+
+  loadbalancer:
+    build: loadbalancer
+    ports:
+      - "8000:80"
+
   webserver1:
     build: webserver1
     ports: 
