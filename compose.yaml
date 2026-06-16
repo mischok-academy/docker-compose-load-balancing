@@ -1,5 +1,10 @@
 services:
-  webserver:
+  webserver1:
     build: webserver1
     ports: 
       - 8080:80
+
+  webserver2:
+    build: webserver2
+    ports: 
+      - 8081:80
