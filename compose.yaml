@@ -1,5 +1,5 @@
 services:
   webserver:
-    build: .
+    build: webserver1
     ports: 
       - 8080:80
