@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose Seminar - Handout | Mischok CI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Calibre', 'Arial', sans-serif;
+            line-height: 1.7;
+            color: #1a222a;
+            background: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0;
+            box-shadow: 0 4px 20px rgba(26, 34, 42, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: #1a222a;
+            color: white;
+            padding: 50px 40px;
+            text-align: left;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 1200 40" xmlns="http://www.w3.org/2000/svg"><path d="M0,20 Q300,0 600,20 T1200,20 L1200,40 L0,40 Z" fill="%23f9f9f9"/></svg>') no-repeat center;
+            background-size: cover;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-top: 15px;
+        }
+
+        .logo-badge {
+            display: inline-block;
+            background: #d69603;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        main {
+            padding: 50px 40px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section:first-of-type {
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #1a222a;
+            font-size: 2em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d69603;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        h3 {
+            color: #27323f;
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        p, li {
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+
+        .code-block {
+            background: #27323f;
+            color: #e8e8e8;
+            padding: 20px;
+            border-radius: 0;
+            overflow-x: auto;
+            margin: 25px 0;
+            font-family: 'Realtime Rounded', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.7;
+            border-left: 4px solid #d69603;
+            box-shadow: 0 2px 10px rgba(26, 34, 42, 0.15);
+            white-space: pre;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            display: block;
+            white-space: pre;
+            white-space: pre-wrap;
+        }
+
+        .keyword { color: #a5d6ff; font-weight: 600; }
+        .string { color: #ffcc99; }
+        .comment { color: #88d9a3; }
+        .variable { color: #ccff99; }
+        .number { color: #ffcc99; }
+        .tag { color: #a5d6ff; }
+        .attr { color: #ccff99; }
+        .value { color: #ffcc99; }
+        .path { color: #ffcc99; }
+
+        .file-name {
+            background: #27323f;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 0;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 25px;
+            letter-spacing: 0.5px;
+        }
+
+        .highlight {
+            background: #fef5e7;
+            padding: 18px;
+            border-left: 4px solid #d69603;
+            margin: 25px 0;
+            border-radius: 0;
+        }
+
+        .highlight strong {
+            color: #d69603;
+        }
+
+        .tip {
+            background: #f0f8ff;
+            padding: 18px;
+            border-left: 4px solid #27323f;
+            margin: 25px 0;
+            border-radius: 0;
+        }
+
+        .info {
+            background: #f9fef6;
+            padding: 18px;
+            border-left: 4px solid #d69603;
+            margin: 25px 0;
+            border-radius: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #ededed;
+        }
+
+        th {
+            background: #1a222a;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95em;
+            letter-spacing: 0.3px;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .task {
+            background: #f9fef6;
+            border: 2px solid #d69603;
+            padding: 22px;
+            border-radius: 0;
+            margin: 25px 0;
+        }
+
+        .task h4 {
+            color: #1a222a;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .task ol {
+            margin-left: 30px;
+        }
+
+        .task li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: #1a222a;
+            padding: 35px 40px;
+            text-align: center;
+            color: #ededed;
+            border-top: 1px solid #27323f;
+        }
+
+        footer p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        footer a {
+            color: #d69603;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .diagram {
+            text-align: center;
+            margin: 35px 0;
+            padding: 25px;
+            background: #f9f9f9;
+            border-radius: 0;
+            border: 1px solid #ededed;
+        }
+
+        .command-example {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 0;
+            margin: 18px 0;
+            font-family: 'Realtime Rounded', 'Courier New', monospace;
+            border-left: 3px solid #d69603;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #1a222a;
+        }
+
+        .highlight::before,
+        .tip::before,
+        .info::before,
+        .task::before {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-badge">MISCHOK ACADEMY</div>
+            <h1>Docker Compose Seminar</h1>
+            <p>Praktischer Einstieg in Container-Orchestrierung mit Nginx Load Balancing</p>
+            <p style="margin-top: 20px; font-size: 0.95em; opacity: 0.9;">Schulungsmaterial für Mischok CI</p>
+        </header>
+
+        <main>
+            <!-- Einleitung -->
+            <section class="section">
+                <h2>Überblick & Lernziele</h2>
+                <p>In diesem Seminar lernen Sie, wie Sie mit Docker Compose eine lokale Multi-Container-Umgebung aufbauen und verwalten. Sie werden einen Load Balancer konfigurieren und verschiedene Load-Balancing-Strategien ausprobieren.</p>
+
+                <h3>Lernziele</h3>
+                <ul>
+                    <li>Docker Images verstehen und Docker Compose verwenden</li>
+                    <li>Mehrere Container mit Docker Compose orchestrieren</li>
+                    <li>Nginx als Load Balancer konfigurieren</li>
+                    <li>Verschiedene Load-Balancing-Methoden ausprobieren</li>
+                    <li>Development-Setup mit automatischer Synchronisierung</li>
+                </ul>
+
+                <div class="diagram">
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+                        <!-- Titel -->
+                        <text x="300" y="25" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">
+                            Docker Compose Architektur
+                        </text>
+
+                        <!-- Load Balancer Box -->
+                        <rect x="100" y="60" width="400" height="80" rx="8" fill="#667eea" stroke="#764ba2" stroke-width="2"/>
+                        <text x="300" y="90" font-size="16" font-weight="bold" text-anchor="middle" fill="white">
+                            Nginx Load Balancer (Port 8080)
+                        </text>
+                        <text x="300" y="115" font-size="13" text-anchor="middle" fill="white">
+                            Round Robin / IP Hash / Least Conn
+                        </text>
+
+                        <!-- Arrows from Load Balancer -->
+                        <path d="M 220 140 L 220 180" stroke="#764ba2" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+                        <path d="M 380 140 L 380 180" stroke="#764ba2" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+
+                        <!-- Webserver 1 Box -->
+                        <rect x="80" y="180" width="280" height="120" rx="8" fill="#4CAF50" stroke="#45a049" stroke-width="2"/>
+                        <text x="220" y="210" font-size="15" font-weight="bold" text-anchor="middle" fill="white">
+                            Webserver 1
+                        </text>
+                        <text x="220" y="235" font-size="12" text-anchor="middle" fill="white">
+                            Nginx Container
+                        </text>
+                        <text x="220" y="255" font-size="12" text-anchor="middle" fill="white">
+                            Port 8081
+                        </text>
+                        <text x="220" y="275" font-size="12" text-anchor="middle" fill="white">
+                            index.html (v1)
+                        </text>
+
+                        <!-- Webserver 2 Box -->
+                        <rect x="380" y="180" width="280" height="120" rx="8" fill="#2196F3" stroke="#1976D2" stroke-width="2"/>
+                        <text x="520" y="210" font-size="15" font-weight="bold" text-anchor="middle" fill="white">
+                            Webserver 2
+                        </text>
+                        <text x="520" y="235" font-size="12" text-anchor="middle" fill="white">
+                            Nginx Container
+                        </text>
+                        <text x="520" y="255" font-size="12" text-anchor="middle" fill="white">
+                            Port 8082
+                        </text>
+                        <text x="520" y="275" font-size="12" text-anchor="middle" fill="white">
+                            index.html (v2)
+                        </text>
+
+                        <!-- Netzwerk Layer -->
+                        <rect x="40" y="330" width="520" height="50" rx="8" fill="#f5f5f5" stroke="#667eea" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="300" y="362" font-size="13" text-anchor="middle" fill="#667eea" font-weight="bold">
+                            Docker Network (webnet)
+                        </text>
+
+                        <!-- Arrow marker definition -->
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#764ba2" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Schritt 1 -->
+            <section class="section">
+                <h2>Schritt 1: Grundlagen - Nginx Container mit Index.html</h2>
+                <p>Wir beginnen mit einem einfachen Nginx Container, der eine statische HTML-Seite bereitstellt.</p>
+
+                <h3>1.1 Verzeichnisstruktur erstellen</h3>
+                <p>Erstellen Sie folgende Verzeichnisstruktur:</p>
+                <div class="command-example">
+                    webserver1/
+                    └── html/
+                        └── index.html
+                </div>
+
+                <h3>1.2 Index.html erstellen</h3>
+                <div class="file-name">webserver1/html/index.html</div>
+                <div class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Webserver 1&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial; text-align: center; padding: 50px; }
+        .container { background: #4CAF50; color: white; padding: 30px; border-radius: 10px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;🟢 Webserver 1&lt;/h1&gt;
+        &lt;p&gt;Dies ist die erste Instanz&lt;/p&gt;
+        &lt;p&gt;Hostname: &lt;strong&gt;&lt;?php echo gethostname(); ?&gt;&lt;/strong&gt;&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></div>
+
+                <h3>1.3 Dockerfile erstellen</h3>
+                <div class="file-name">webserver1/Dockerfile</div>
+                <div class="code-block"><code><span class="keyword">FROM</span> <span class="string">nginx:latest</span>
+<span class="comment"># HTML-Dateien in den Nginx Container kopieren</span>
+<span class="keyword">COPY</span> <span class="path">html/</span> <span class="path">/usr/share/nginx/html/</span>
+<span class="comment"># Nginx starten</span>
+<span class="keyword">EXPOSE</span> <span class="number">80</span>
+<span class="keyword">CMD</span> [<span class="string">"nginx"</span>, <span class="string">"-g"</span>, <span class="string">"daemon off;"</span>]</code></div>
+
+                <div class="tip">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#17a2b8" stroke-width="2"/>
+                        <text x="12" y="16" font-size="14" font-weight="bold" text-anchor="middle" fill="#17a2b8">i</text>
+                    </svg>
+                    <strong>Tipp:</strong> Das <code>nginx:latest</code> Image ist sehr leicht und enthält bereits einen vollständig konfigurierten Webserver.
+                </div>
+            </section>
+
+            <!-- Schritt 2 -->
+            <section class="section">
+                <h2>Schritt 2: Docker Compose einführen</h2>
+                <p>Docker Compose ermöglicht es, mehrere Container als Dienst zu definieren und zu verwalten.</p>
+
+                <h3>2.1 compose.yaml erstellen</h3>
+                <div class="file-name">compose.yaml</div>
+                <div class="code-block"><code><span class="attr">services</span>:
+  <span class="variable">webserver1</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver1</span>
+    <span class="attr">ports</span>:
+      - <span class="string">"8081:80"</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver1</span></code></div>
+
+                <h3>2.2 Häufige Docker Compose Kommandos</h3>
+                <table>
+                    <tr>
+                        <th>Kommando</th>
+                        <th>Beschreibung</th>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose up</code></td>
+                        <td>Container starten und im Vordergrund anzeigen</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose up -d</code></td>
+                        <td>Container im Hintergrund starten</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose down</code></td>
+                        <td>Container stoppen und entfernen</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose logs</code></td>
+                        <td>Logs aller Container anzeigen</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose ps</code></td>
+                        <td>Status der Container anzeigen</td>
+                    </tr>
+                </table>
+
+                <h3>2.3 Test</h3>
+                <div class="command-example">
+                    $ docker compose up<br>
+                    $ curl http://localhost:8081
+                </div>
+
+                <div class="info">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#28a745" stroke-width="2"/>
+                        <path d="M 9 12 L 11 14 L 15 10" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sie sollten jetzt die HTML-Seite von Webserver 1 sehen können
+                </div>
+            </section>
+
+            <!-- Schritt 3 -->
+            <section class="section">
+                <h2>Schritt 3: Zweiter Webserver hinzufügen</h2>
+                <p>Wir erstellen einen zweiten Container mit einer abgeänderten index.html.</p>
+
+                <h3>3.1 Struktur für webserver2</h3>
+                <div class="command-example">
+                    webserver2/<br>
+                    <br>
+                    ├── Dockerfile<br>
+                    <br>
+                    └── html/<br>
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;└── index.html
+                </div>
+
+                <h3>3.2 Index.html für Webserver 2</h3>
+                <div class="file-name">webserver2/html/index.html</div>
+                <div class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Webserver 2&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial; text-align: center; padding: 50px; }
+        .container { background: #2196F3; color: white; padding: 30px; border-radius: 10px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;🔵 Webserver 2&lt;/h1&gt;
+        &lt;p&gt;Dies ist die zweite Instanz&lt;/p&gt;
+        &lt;p&gt;Hostname: &lt;strong&gt;&lt;?php echo gethostname(); ?&gt;&lt;/strong&gt;&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></div>
+
+                <h3>3.3 Docker Compose aktualisieren</h3>
+                <div class="file-name">docker compose.yaml</div>
+                <div class="code-block"><code>services:
+  webserver1:
+    build:
+      context: ./webserver1
+    ports:
+      - "8081:80"
+    networks:
+      - webnet
+    container_name: webserver1
+
+  webserver2:
+    build:
+      context: ./webserver2
+    ports:
+      - "8082:80"
+    networks:
+      - webnet
+    container_name: webserver2
+
+networks:
+  webnet:
+    driver: bridge</code></div>
+
+                <h3>3.4 Test mit beiden Servern</h3>
+                <div class="command-example">
+                    $ docker compose down<br>
+                    $ docker compose up -d<br>
+                    $ curl http://localhost:8081  # Webserver 1<br>
+                    $ curl http://localhost:8082  # Webserver 2
+                </div>
+
+                <div class="info">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#28a745" stroke-width="2"/>
+                        <path d="M 9 12 L 11 14 L 15 10" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sie sehen unterschiedliche Seiten (grün und blau) je nachdem, welchen Port Sie nutzen
+                </div>
+            </section>
+
+            <!-- Schritt 4 -->
+            <section class="section">
+                <h2>Schritt 4: Nginx Load Balancer konfigurieren</h2>
+                <p>Ein Nginx Container leitet Requests im Round-Robin-Verfahren an die beiden Webserver weiter.</p>
+
+                <h3>4.1 Load Balancer Verzeichnisstruktur</h3>
+                <div class="command-example">
+                    loadbalancer/<br>
+                    ├── Dockerfile<br>
+                    └── nginx.conf
+                </div>  
+
+                <h3>4.2 Nginx.conf - Round Robin (Standard)</h3>
+                <div class="file-name">loadbalancer/nginx.conf</div>
+                <div class="code-block"><code><span class="keyword">http</span> {
+    <span class="keyword">upstream</span> <span class="variable">backend</span> {
+        <span class="attr">server</span> <span class="path">webserver1:80</span>;
+        <span class="attr">server</span> <span class="path">webserver2:80</span>;
+    }
+    <span class="keyword">server</span> {
+        <span class="attr">listen</span> <span class="number">80</span>;
+        <span class="attr">server_name</span> _;
+        <span class="keyword">location</span> / {
+            <span class="attr">proxy_pass</span> <span class="path">http://backend</span>;
+            <span class="attr">proxy_set_header</span> Host <span class="variable">$host</span>;
+            <span class="attr">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;
+            <span class="attr">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;
+        }
+    }
+}</code></div>
+
+                <h3>4.3 Dockerfile für Load Balancer</h3>
+                <div class="file-name">loadbalancer/Dockerfile</div>
+                <div class="code-block"><code><span class="keyword">FROM</span> <span class="string">nginx:latest</span>
+<span class="keyword">COPY</span> <span class="path">nginx.conf</span> <span class="path">/etc/nginx/nginx.conf</span>
+<span class="keyword">EXPOSE</span> <span class="number">80</span>
+<span class="keyword">CMD</span> [<span class="string">"nginx"</span>, <span class="string">"-g"</span>, <span class="string">"daemon off;"</span>]</code></div>
+
+                <h3>4.4 Docker Compose mit Load Balancer</h3>
+                <div class="file-name">compose.yaml</div>
+                <div class="code-block"><code><span class="attr">services</span>:
+  <span class="variable">loadbalancer</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./loadbalancer</span>
+    <span class="attr">ports</span>:
+      - <span class="string">"8080:80"</span>
+    <span class="attr">depends_on</span>:
+      - <span class="variable">webserver1</span>
+      - <span class="variable">webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">loadbalancer</span>
+  <span class="variable">webserver1</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver1</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver1</span>
+  <span class="variable">webserver2</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver2</span></code></div>
+
+                <h3>4.5 Test des Load Balancers</h3>
+                <div class="command-example">
+                    $ docker compose up -d<br>
+                    $ curl http://localhost:8080  # Zeigt Webserver 1<br>
+                    $ curl http://localhost:8080  # Zeigt Webserver 2<br>
+                    $ curl http://localhost:8080  # Zeigt Webserver 1 (wieder)<br>
+                </div>
+
+                <div class="info">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#28a745" stroke-width="2"/>
+                        <path d="M 9 12 L 11 14 L 15 10" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sie sehen abwechselnd grüne und blaue Seiten - das ist Round Robin!
+                </div>
+            </section>
+
+            <!-- Schritt 5 -->
+            <section class="section">
+                <h2>Schritt 5: Load Balancing Methoden</h2>
+                <p>Nginx unterstützt verschiedene Methoden zur Verteilung von Anfragen.</p>
+
+                <h3>5.1 IP Hash - Sticky Sessions</h3>
+                <p>Jede Client-IP wird immer zum gleichen Backend-Server geleitet.</p>
+
+                <div class="file-name">loadbalancer/nginx.conf (IP Hash Variante)</div>
+                <div class="code-block"><code><span class="keyword">upstream</span> <span class="variable">backend</span> {
+    <span class="keyword">ip_hash</span>;
+    <span class="attr">server</span> <span class="path">webserver1:80</span>;
+    <span class="attr">server</span> <span class="path">webserver2:80</span>;
+}</code></div>
+
+                <p><strong>Verwendungsfall:</strong> Sessions müssen auf demselben Server bleiben</p>
+
+                <h3>5.2 Least Connections - Least Conn</h3>
+                <p>Anfragen werden an den Server mit den wenigsten aktiven Verbindungen geleitet.</p>
+
+                <div class="file-name">loadbalancer/nginx.conf (Least Conn Variante)</div>
+                <div class="code-block"><code><span class="keyword">upstream</span> <span class="variable">backend</span> {
+    <span class="keyword">least_conn</span>;
+    <span class="attr">server</span> <span class="path">webserver1:80</span>;
+    <span class="attr">server</span> <span class="path">webserver2:80</span>;
+}</code></div>
+
+                <p><strong>Verwendungsfall:</strong> Server haben unterschiedliche Leistungsprofile</p>
+
+                <h3>5.3 Weighted Round Robin</h3>
+                <p>Verschiedene Gewichtungen für unterschiedliche Server-Kapazitäten.</p>
+
+                <div class="code-block"><code><span class="keyword">upstream</span> <span class="variable">backend</span> {
+    <span class="attr">server</span> <span class="path">webserver1:80</span> <span class="attr">weight</span>=<span class="number">3</span>;  <span class="comment"># 3x mehr Traffic</span>
+    <span class="attr">server</span> <span class="path">webserver2:80</span> <span class="attr">weight</span>=<span class="number">1</span>;  <span class="comment"># 1x Traffic</span>
+}</code></div>
+
+                <h3>5.4 Methoden testen</h3>
+                <div class="task">
+                    <h4><svg style="display: inline-block; width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="#2196F3" stroke-width="2"/>
+                        <path d="M 7 12 L 10 15 L 17 8" stroke="#2196F3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>Aufgabe: Verschiedene Methoden testen</h4>
+                    <ol>
+                        <li>Ändern Sie <code>nginx.conf</code> zu <code>ip_hash;</code></li>
+                        <li>Führen Sie aus: <code>docker compose restart loadbalancer</code></li>
+                        <li>Machen Sie mehrere Requests: <code>for i in {1..10}; do curl http://localhost:8080; done</code></li>
+                        <li>Beobachten Sie, dass Sie immer denselben Server bekommen</li>
+                        <li>Probieren Sie <code>least_conn;</code> aus</li>
+                    </ol>
+                </div>
+
+                <div class="highlight">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 12 2 L 2 20 L 22 20 Z" fill="none" stroke="#ffc107" stroke-width="2"/>
+                        <circle cx="12" cy="15" r="1" fill="#ffc107"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke="#ffc107" stroke-width="2"/>
+                    </svg>
+                    <strong>Wichtig:</strong> Nach Änderungen an nginx.conf müssen Sie den Load Balancer neu starten oder <code>docker compose down && docker compose up</code> ausführen.
+                </div>
+            </section>
+
+            <!-- Schritt 6 -->
+            <section class="section">
+                <h2>Schritt 6: Finale Konfiguration und Tests</h2>
+                <p>Die komplette Lösung mit Load Balancer in Aktion.</p>
+
+                <h3>6.1 Finale compose.yaml</h3>
+                <p>Die fertige Konfiguration mit allen Services:</p>
+
+                <div class="file-name">compose.yaml</div>
+                <div class="code-block"><code><span class="attr">services</span>:
+  <span class="variable">loadbalancer</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./loadbalancer</span>
+    <span class="attr">ports</span>:
+      - <span class="string">"8080:80"</span>
+    <span class="attr">depends_on</span>:
+      - <span class="variable">webserver1</span>
+      - <span class="variable">webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">loadbalancer</span>
+  <span class="variable">webserver1</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver1</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver1</span>
+  <span class="variable">webserver2</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver2</span></code></div>
+
+                <h3>6.2 System starten und testen</h3>
+                <div class="command-example">
+                    $ docker compose up -d<br>
+                    $ docker compose ps            <span class="comment"># Status prüfen</span><br>
+                    $ curl http://localhost:8080   <span class="comment"># Zeigt Webserver 1</span><br>
+                    $ curl http://localhost:8080   <span class="comment"># Zeigt Webserver 2</span><br>
+                    $ curl http://localhost:8080   <span class="comment"># Zeigt Webserver 1 (wieder)</span>
+                </div>
+
+                <div class="info">
+                    <svg style="display: inline-block; width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#28a745" stroke-width="2"/>
+                        <path d="M 9 12 L 11 14 L 15 10" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sie sehen abwechselnd grüne und blaue Seiten - Round Robin funktioniert!
+                </div>
+
+                <h3>6.3 Logs überwachen</h3>
+                <p>Mit dem folgenden Kommando sehen Sie live, wie Requests verteilt werden:</p>
+                <div class="command-example">
+                    $ docker compose logs -f loadbalancer
+                </div>
+
+                <h3>6.4 Praktische Übungen</h3>
+                <div class="task">
+                    <h4><svg style="display: inline-block; width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="#2196F3" stroke-width="2"/>
+                        <path d="M 7 12 L 10 15 L 17 8" stroke="#2196F3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>Aufgabe: Load Balancer in Aktion beobachten</h4>
+                    <ol>
+                        <li>Terminal 1: <code>docker compose logs -f loadbalancer</code></li>
+                        <li>Terminal 2: <code>for i in {1..10}; do curl http://localhost:8080; sleep 0.5; done</code></li>
+                        <li>Beobachten Sie, wie die Requests abwechselnd verteilt werden</li>
+                        <li>Stoppen Sie einen Server: <code>docker compose stop webserver1</code></li>
+                        <li>Machen Sie neue Requests - sie gehen nur noch zu webserver2</li>
+                        <li>Starten Sie webserver1 wieder: <code>docker compose start webserver1</code></li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="section">
+                <h2>Best Practices & Tipps</h2>
+
+                <h3>Netzwerk Debugging</h3>
+                <div class="code-block"><code><span class="comment"># In einen laufenden Container gehen</span>
+docker exec -it webserver1 bash
+<span class="comment"># Ping zwischen Containern testen</span>
+ping webserver2
+<span class="comment"># Logs eines Containers ansehen</span>
+docker compose logs loadbalancer -f</code></div>
+
+                <h3>Container-Lifecycle verwalten</h3>
+                <table>
+                    <tr>
+                        <th>Szenario</th>
+                        <th>Kommando</th>
+                    </tr>
+                    <tr>
+                        <td>Nur Logs überprüfen</td>
+                        <td><code>docker compose logs -f</code></td>
+                    </tr>
+                    <tr>
+                        <td>Container neu bauen</td>
+                        <td><code>docker compose build --no-cache</code></td>
+                    </tr>
+                    <tr>
+                        <td>Einen Service neu starten</td>
+                        <td><code>docker compose restart loadbalancer</code></td>
+                    </tr>
+                    <tr>
+                        <td>Alle Ressourcen entfernen</td>
+                        <td><code>docker compose down -v</code></td>
+                    </tr>
+                </table>
+
+                <h3>Performance Tipps</h3>
+                <ul>
+                    <li><strong>Multi-stage Builds:</strong> Reduzieren Sie Image-Größe mit mehrstufigen Dockerfiles</li>
+                    <li><strong>Cache Layer:</strong> Häufig geänderte Commands am Ende platzieren</li>
+                    <li><strong>Memory Limits:</strong> Setzen Sie Memory-Limits für unkontrolliertes Wachstum</li>
+                    <li><strong>Health Checks:</strong> Definieren Sie Health Checks für automatisches Restart bei Fehlern</li>
+                </ul>
+
+                <div class="code-block"><code><span class="comment"># Health Check Beispiel in docker compose.yaml</span>
+<span class="attr">services</span>:
+  <span class="variable">webserver1</span>:
+    <span class="attr">build</span>: <span class="path">./webserver1</span>
+    <span class="attr">healthcheck</span>:
+      <span class="attr">test</span>: [<span class="string">"CMD"</span>, <span class="string">"curl"</span>, <span class="string">"-f"</span>, <span class="string">"http://localhost"</span>]
+      <span class="attr">interval</span>: <span class="number">30s</span>
+      <span class="attr">timeout</span>: <span class="number">10s</span>
+      <span class="attr">retries</span>: <span class="number">3</span></code></div>
+            </section>
+
+            <!-- Zusammenfassung -->
+            <section class="section">
+                <h2>Zusammenfassung der wichtigsten Konzepte</h2>
+
+                <h3>Was haben wir gelernt?</h3>
+                <ul>
+                    <li><strong>Docker Images:</strong> Basis für Container mit Applikationen</li>
+                    <li><strong>Docker Compose:</strong> Vereinfacht Multi-Container-Verwaltung</li>
+                    <li><strong>Service-Discovery:</strong> Container finden sich automatisch</li>
+                    <li><strong>Load Balancing:</strong> Verteilt Traffic auf mehrere Backend-Server</li>
+                    <li><strong>Verschiedene Load-Balancing-Methoden:</strong> Round Robin, IP Hash, Least Conn</li>
+                    <li><strong>Nginx als Reverse Proxy:</strong> Professionelle Last-Verteilung</li>
+                </ul>
+
+                <h3>Zusammenfassung: Finale compose.yaml</h3>
+                <div class="file-name">compose.yaml</div>
+                <div class="code-block"><code><span class="attr">services</span>:
+  <span class="variable">loadbalancer</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./loadbalancer</span>
+    <span class="attr">ports</span>:
+      - <span class="string">"8080:80"</span>
+    <span class="attr">depends_on</span>:
+      - <span class="variable">webserver1</span>
+      - <span class="variable">webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">loadbalancer</span>
+  <span class="variable">webserver1</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver1</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver1</span>
+  <span class="variable">webserver2</span>:
+    <span class="attr">build</span>:
+      <span class="attr">context</span>: <span class="path">./webserver2</span>
+    <span class="attr">container_name</span>: <span class="variable">webserver2</span></code></div>
+
+                <h3>Nächste Schritte</h3>
+                <ul>
+                    <li>Erweitern Sie das Setup mit Datenbanken (PostgreSQL, MySQL, Redis)</li>
+                    <li>Implementieren Sie Health Checks für automatisches Container-Restart</li>
+                    <li>Fügen Sie Volumes für persistente Daten hinzu</li>
+                    <li>Nutzen Sie Docker Registries für Image Distribution</li>
+                    <li>Erforschen Sie Kubernetes für Production Deployments</li>
+                    <li>Automatisieren Sie Deployments mit CI/CD Pipelines</li>
+                </ul>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section class="section">
+                <h2>Troubleshooting</h2>
+
+                <h3>Häufige Fehler und Lösungen</h3>
+
+                <h4>❌ Problem: "Address already in use"</h4>
+                <p><strong>Lösung:</strong> Port wird bereits verwendet</p>
+                <div class="command-example">
+                    # Laufende Container auflisten<br>
+                    docker ps<br>
+                    <br>
+                    # Oder Port ändern in docker compose.yaml<br>
+                    ports:<br>
+                    &nbsp;&nbsp;- "9090:80"  # Statt 8080
+                </div>
+
+                <h4>❌ Problem: "Container exits immediately"</h4>
+                <p><strong>Lösung:</strong> Logs prüfen</p>
+                <div class="command-example">
+                    docker compose logs [service-name]<br>
+                    docker compose logs --follow  # Live-Logs
+                </div>
+
+                <h4>❌ Problem: "Cannot reach container from another"</h4>
+                <p><strong>Lösung:</strong> Container-Namen und Portqualität überprüfen</p>
+                <div class="command-example">
+                    docker compose exec webserver1 ping webserver2<br>
+                    docker compose ps<br>
+                    docker compose logs loadbalancer
+                </div>
+
+                <h4>❌ Problem: "Load Balancer verteilt nicht korrekt"</h4>
+                <p><strong>Lösung:</strong> nginx.conf überprüfen und Service neu starten</p>
+                <div class="command-example">
+                    docker compose logs -f loadbalancer<br>
+                    docker compose restart loadbalancer<br>
+                    docker compose up -d --build loadbalancer
+                </div>
+            </section>
+
+            <!-- Ressourcen -->
+            <section class="section">
+                <h2>Weitere Ressourcen</h2>
+
+                <h3>Offizielle Dokumentation</h3>
+                <ul>
+                    <li><strong>Docker Compose:</strong> https://docs.docker.com/compose/</li>
+                    <li><strong>Nginx Image:</strong> https://hub.docker.com/_/nginx</li>
+                    <li><strong>Docker Networking:</strong> https://docs.docker.com/network/</li>
+                </ul>
+
+                <h3>Empfohlene Tools</h3>
+                <ul>
+                    <li><strong>Docker Desktop:</strong> IDE für Docker (Mac, Windows, Linux)</li>
+                    <li><strong>Portainer:</strong> Web-UI für Docker Management</li>
+                    <li><strong>ctop:</strong> Top-ähnliche Überwachung für Container</li>
+                </ul>
+
+                <h3>Verwandte Technologien</h3>
+                <ul>
+                    <li><strong>Kubernetes:</strong> Enterprise Container Orchestration</li>
+                    <li><strong>Docker Swarm:</strong> Clustering mit Docker</li>
+                    <li><strong>Docker Registry:</strong> Private Image Repositories</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Docker Compose Seminar - Mischok CI | Erstellt am 16. Juni 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Dieses Handout darf frei verwendet und weitergegeben werden.</p>
+        </footer>
+    </div>
+</body>
+</html>
